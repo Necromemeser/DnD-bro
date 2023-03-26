@@ -1,10 +1,14 @@
 import telebot
-import config
 import random
+import os
 
 from telebot import types
+from dotenv import load_dotenv
 
-bot = telebot.TeleBot(config.TOKEN)
+path = "F:/DnD-bro-token/token.env"
+load_dotenv(dotenv_path=path)
+
+bot = telebot.TeleBot(os.getenv('TOKEN'))
 
 
 @bot.message_handler(commands=['start'])
@@ -34,7 +38,7 @@ def welcome(message):
                      "🧑 <b>Спихнуть ответственность за названия людей и имена городов на бездушный инструмент</b> (эт я, да :3);\n\n"
                      "👉👈 <b>Получить дозу хорошего настроения между партиями</b>;\n\n"
                      "И многое другое! - сказал бы я, было бы что-то еще...\n"
-                     "В общем, я помогу, чем смогу.\n\n"
+                     "В общем, помогу, чем смогу.\n\n"
                      "<b>Но для начала ответь:\n"
                      "ты ♂ Dungeon Master ♂ или ⚔ Игрок ⚔?</b>".format(
                          message.from_user, bot.get_me()),
