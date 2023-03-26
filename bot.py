@@ -19,9 +19,8 @@ def welcome(message):
     Отправляет приветственные сообщения
     И создает клавиатуру
     """
-    sti = open('contents/welcome.webp', 'rb')
-    bot.send_sticker(message.chat.id, sti)
 
+    bot.send_video(message.chat.id, 'https://tenor.com/ru/view/pepe-pepe-the-frog-wizard-gif-7939266', None, '')
     # Создание клавиатуры
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     item1 = types.KeyboardButton("♂ Dungeon Master ♂")
