@@ -1,0 +1,4 @@
+telebot
+python-dotenv
+setuptools
+Django

@@ -1,0 +1,2 @@
+[console_scripts]
+myCommand = myCommand.command_line:main
