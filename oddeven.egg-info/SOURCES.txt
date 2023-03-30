@@ -1,0 +1,9 @@
+README.md
+setup.cfg
+setup.py
+oddeven.egg-info/PKG-INFO
+oddeven.egg-info/SOURCES.txt
+oddeven.egg-info/dependency_links.txt
+oddeven.egg-info/entry_points.txt
+oddeven.egg-info/requires.txt
+oddeven.egg-info/top_level.txt
