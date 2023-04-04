@@ -18,7 +18,7 @@ git clone https://github.com/Necromemeser/DnD-bro.git
 ```
 pip install pyTelegramBotAPI
 ```
-Далеей создайте файл 'config.py' и впишите в нем следующее:
+Далеей создайте файл `config.py` и впишите в нем следующее:
 ```
 TOKEN = '' # bot token from @BotFather
 ```
