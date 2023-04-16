@@ -121,7 +121,7 @@ def role_choice_handler(message):
                             bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                                   text="↓ Под вашим контролем следующие персонажи ↓",
                                                   reply_markup=None)
-                            ans = bot.send_message(call.message.chat.id, playerMode.getListCharacters(message.from_user.id))
+                            ans = bot.send_message(call.message.chat.id, playerMode.getListCharacters(str(message.from_user.id)))
                             if ans.text != "У вас еще нет персонажей":
                                 findCharacterForEdit(message)
 
@@ -132,7 +132,7 @@ def role_choice_handler(message):
                             bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                                   text="↓ Под вашим контролем следующие персонажи ↓",
                                                   reply_markup=None)
-                            ans = bot.send_message(call.message.chat.id, playerMode.getListCharacters(message.from_user.id))
+                            ans = bot.send_message(call.message.chat.id, playerMode.getListCharacters(str(message.from_user.id)))
                             if ans.text != "У вас еще нет персонажей":
                                  findCharacterForView(message)
 
@@ -204,7 +204,7 @@ def create_character(message):
     Используется для создания нового персонажа
     """
     character = []
-    character.append(message.from_user.id)
+    character.append(str(message.from_user.id))
 
     def step1(msg):
         """
@@ -377,7 +377,7 @@ def findCharacterForView(message):
         """
         Функция используется для вывода информации о персонаже
         """
-        info = playerMode.getIinfoAboutCharacter(message.from_user.id, msg.text)
+        info = playerMode.getIinfoAboutCharacter(str(message.from_user.id), msg.text)
         bot.send_message(message.chat.id, info.format(message.from_user, bot.get_me()), parse_mode='html')
 
     msg = bot.send_message(message.chat.id, 'Введите имя персонажа, данные о котором вам нужны')
@@ -395,8 +395,7 @@ def findCharacterForEdit(message):
         """
 
         characterName = msg.text
-        print(characterName)
-        info = playerMode.getIinfoAboutCharacter(message.from_user.id, msg.text)
+        info = playerMode.getIinfoAboutCharacter(str(message.from_user.id), msg.text)
 
         if info != "У вас нет персонажа с таким именем":
             info = "Ваш персонаж на данный момент имеет следующие данные:\n\n" + info
@@ -449,11 +448,11 @@ def findCharacterForEdit(message):
                         if not message.text.isdigit():
                             bot.send_message(message.chat.id, "Вы ввели некорректные данные. Изменения не были внесены.")
                         else:
-                            res = playerMode.changeInfoAboutCharacter(message.from_user.id, characterName,
+                            res = playerMode.changeInfoAboutCharacter(str(message.from_user.id), characterName,
                                                                       parametr, message.text)
                             bot.send_message(message.chat.id, res)
                     else:
-                        res = playerMode.changeInfoAboutCharacter(message.from_user.id, characterName, parametr,
+                        res = playerMode.changeInfoAboutCharacter(str(message.from_user.id), characterName, parametr,
                                                                   message.text)
                         bot.send_message(message.chat.id, res)
 

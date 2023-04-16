@@ -23,7 +23,7 @@ try:
     with connection.cursor() as cursor:
         cursor.execute(
             """CREATE TABLE IF NOT EXISTS charactersheet(
-                user_id int NOT NULL,
+                user_id varchar(50) NOT NULL,
                 id serial PRIMARY KEY,
                 name varchar(50) NOT NULL,
                 class varchar(50),
@@ -62,10 +62,10 @@ def getListCharacters(userID):
     Функция возвращает список персонажей, которые доступны пользователю
     """
     with connection.cursor() as cursor:
-        select_all_rows = f"""SELECT * FROM charactersheet WHERE user_id = {userID}"""
+        select_all_rows = f"""SELECT * FROM charactersheet WHERE user_id = '{userID}'"""
         cursor.execute(select_all_rows)
         rows = cursor.fetchall()
-        if rows is not None:
+        if len(rows) != 0:
             listCharacters = "[ №: Имя - Класс ]\n"
             i = 1
             for row in rows:
@@ -81,7 +81,7 @@ def getIinfoAboutCharacter(userID, name):
     Функция возвращает информацию о конкретном персонаже
     """
     with connection.cursor() as cursor:
-        select_all_rows = f"""SELECT * FROM charactersheet WHERE user_id = {userID} AND name = '{name}'"""
+        select_all_rows = f"""SELECT * FROM charactersheet WHERE user_id = '{userID}' AND name = '{name}'"""
         cursor.execute(select_all_rows)
         character = cursor.fetchone()
         if character is not None:
@@ -114,9 +114,9 @@ def changeInfoAboutCharacter(userID, characterName, parameter, val):
     with connection.cursor() as cursor:
         if parameter != "name" and parameter != "class" and parameter != "inventory":
             cursor.execute(
-                f"""UPDATE charactersheet SET {parameter} = {val} WHERE user_id = {userID} AND name = '{characterName}'""")
+                f"""UPDATE charactersheet SET {parameter} = {val} WHERE user_id = '{userID}' AND name = '{characterName}'""")
             return "Данные успешно обновлены!"
         else:
             cursor.execute(
-                f"""UPDATE charactersheet SET {parameter} = '{val}' WHERE user_id = {userID} AND name = '{characterName}'""")
+                f"""UPDATE charactersheet SET {parameter} = '{val}' WHERE user_id = '{userID}' AND name = '{characterName}'""")
             return "Данные успешно обновлены!"
