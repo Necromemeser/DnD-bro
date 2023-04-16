@@ -90,11 +90,12 @@ def role_choice_handler(message):
         elif message.text == 'Сменить роль':  # Замена роли на противоположную (Недоделано)
             bot.send_message(message.chat.id, "Прости, эта часть еще недоделана(")
 
-        elif message.text == 'Листы персонажей':  # Работа с листами персонажей (Недоделано)
+        elif message.text == 'Листы персонажей':
             markup = types.InlineKeyboardMarkup(row_width=2)
             create = types.InlineKeyboardButton("Создать персонажа", callback_data='cs.create')
+            view = types.InlineKeyboardButton("Просмотреть персонажа", callback_data='cs.view')
             edit = types.InlineKeyboardButton("Редактировать лист", callback_data='cs.edit')
-            markup.add(create, edit)
+            markup.add(create, view,  edit)
             bot.send_message(message.chat.id, "Выбери опцию", reply_markup=markup)
 
             @bot.callback_query_handler(func=lambda call: call.data.startswith('cs.'))
@@ -108,13 +109,17 @@ def role_choice_handler(message):
                     if call.message:
                         if call.data == 'cs.create':
                             bot.send_message(call.message.chat.id,'Отлично! Приступим к созданию очередного героя!')
-                            global bot_status
                             create_character(message)
-
 
                         elif call.data == 'cs.edit':
                             bot.send_message(call.message.chat.id,
                                              '')
+
+                        elif call.data == 'cs.view':
+                            bot.send_message(call.message.chat.id, '↓ Под вашим контролем следующие персонажи ↓')
+                            bot.send_message(call.message.chat.id, playerMode.getListCharacters(message.from_user.id))
+                            findCharacter(message)
+
                 except Exception as e:
                     print(repr(e))
 
@@ -141,7 +146,7 @@ def role_choice_handler(message):
             bot.send_message(message.chat.id, "Сколько нужно граней?", reply_markup=markup)
 
 
-            bot.send_message(message.chat.id,'Милсдарь {0.first_name}, извольте! Ничего не понял... Скажите еще раз, по-другому!')
+            bot.send_message(message.chat.id, 'Милсдарь {0.first_name}, извольте! Ничего не понял... Скажите еще раз, по-другому!')
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith('d.'))
 def callback_inline(call):
@@ -183,6 +188,7 @@ def create_character(message):
     Используется для создания нового персонажа
     """
     character = []
+    character.append(message.from_user.id)
 
     def step1(msg):
         """
@@ -345,6 +351,21 @@ def create_character(message):
 
     msg = bot.send_message(message.chat.id, 'Как зовут персонажа?')
     bot.register_next_step_handler(msg, step1)
+
+
+@bot.message_handler(commands=['find_character'])
+def findCharacter(message):
+    """
+    Функция принимает имя персонажа для поиска в таблице
+    """
+    def getName(msg):
+        info = playerMode.getIinfoAboutCharacter(message.from_user.id, msg.text)
+        bot.send_message(message.chat.id, info.format(message.from_user, bot.get_me()), parse_mode='html')
+
+    msg = bot.send_message(message.chat.id, 'Введите имя персонажа, данные о котором вам нужны')
+    bot.register_next_step_handler(msg, getName)
+
+
 
 
 # Запуск!
