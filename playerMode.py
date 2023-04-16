@@ -23,7 +23,7 @@ try:
     with connection.cursor() as cursor:
         if cursor.execute("""SELECT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='charactersheet');""") == False:
             cursor.execute(
-                """CREATE TABLE CharacterSheet(
+                """CREATE TABLE charactersheet(
                     id serial PRIMARY KEY,
                     name varchar(50) NOT NULL,
                     class varchar(50),
@@ -51,11 +51,9 @@ def createCharacter(character):
     """
     Функция добавляет в таблицу нового персонажа
     """
-    cursor.execute(
-        f"""INSERT INTO CharacterSheet(name, class, level, strength, dexterity, 
-            stamina, intellect, wisdom, charisma, hp, armor_class) VALUES
-            ({str(character[0])}, {str(character[1])}, {int(character[2])}, {int(character[3])},
-             {int(character[4])}, {int(character[5])}, {int(character[6])}, {int(character[7])},
-             {int(character[8])}, {int(character[9])}, {int(character[10])}, {int(character[11])});"""
-    )
-
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """INSERT INTO charactersheet(name, class, level, strength, dexterity, 
+                    stamina, intellect, wisdom, charisma, hp, armor_class) VALUES
+                    (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", character
+        )
