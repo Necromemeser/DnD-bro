@@ -1,3 +1,5 @@
+import re
+
 import telebot
 import random
 import playerMode
@@ -394,27 +396,28 @@ def findCharacterForEdit(message):
         """
 
         characterName = msg.text
+        print(characterName)
         info = playerMode.getIinfoAboutCharacter(message.from_user.id, msg.text)
 
         if info != "У вас нет персонажа с таким именем":
             info = "Ваш персонаж на данный момент имеет следующие данные:\n\n" + info
             bot.send_message(message.chat.id, info.format(message.from_user, bot.get_me()), parse_mode='html')
 
-            name = types.InlineKeyboardButton("Имя", callback_data='ce.name')
-            cl = types.InlineKeyboardButton("Класс", callback_data='ce.class')
-            lvl = types.InlineKeyboardButton("Уровень", callback_data='ce.level')
+            name = types.InlineKeyboardButton("Имя", callback_data='ce.name.'+characterName)
+            cl = types.InlineKeyboardButton("Класс", callback_data='ce.class.'+characterName)
+            lvl = types.InlineKeyboardButton("Уровень", callback_data='ce.level.'+characterName)
 
-            s = types.InlineKeyboardButton("СИЛ", callback_data='ce.strength')
-            dex = types.InlineKeyboardButton("ЛОВ", callback_data='ce.dexterity')
-            sta = types.InlineKeyboardButton("ВЫН", callback_data='ce.stamina')
-            intellect = types.InlineKeyboardButton("ИНТ", callback_data='ce.intellect')
-            w = types.InlineKeyboardButton("МУД", callback_data='ce.wisdom')
-            ch = types.InlineKeyboardButton("ХАР", callback_data='ce.charisma')
+            s = types.InlineKeyboardButton("СИЛ", callback_data='ce.strength.'+characterName)
+            dex = types.InlineKeyboardButton("ЛОВ", callback_data='ce.dexterity.'+characterName)
+            sta = types.InlineKeyboardButton("ВЫН", callback_data='ce.stamina.'+characterName)
+            intellect = types.InlineKeyboardButton("ИНТ", callback_data='ce.intellect.'+characterName)
+            w = types.InlineKeyboardButton("МУД", callback_data='ce.wisdom.'+characterName)
+            ch = types.InlineKeyboardButton("ХАР", callback_data='ce.charisma.'+characterName)
 
-            hp = types.InlineKeyboardButton("Максимальное ХП", callback_data='ce.hp')
-            armor = types.InlineKeyboardButton("Класс брони", callback_data='ce.armor_class')
+            hp = types.InlineKeyboardButton("Максимальное ХП", callback_data='ce.hp.'+characterName)
+            armor = types.InlineKeyboardButton("Класс брони", callback_data='ce.armor_class.'+characterName)
 
-            inventory = types.InlineKeyboardButton("Инвентарь", callback_data='ce.inventory')
+            inventory = types.InlineKeyboardButton("Инвентарь", callback_data='ce.inventory.'+characterName)
 
             markup = types.InlineKeyboardMarkup([[name, cl, lvl],
                                                  [s, dex, sta, intellect, w, ch],
@@ -430,28 +433,37 @@ def findCharacterForEdit(message):
                 Используется для изменения данных в листах персонажей
                 """
 
+                call.data = call.data[3:]
+                callData = re.search(r'(.*?)(\.)(.*)', call.data)
+
+                parametr = callData[1]
+                characterName = callData[3]
+
+                print("In c_i: ", characterName, call.data, parametr)
                 @bot.message_handler(commands=['set_val'])
                 def setVal(message):
                     """
                     Функция принимает новые данные для листа персонажа
                     """
-                    print("В setVal: ", characterName, call.data[3:])
-                    if call.data[3:] != "name" and call.data[3:] != "class" and call.data[3:] != "inventory":
+                    print("В setVal: ", characterName, parametr)
+                    if parametr != "name" and parametr != "class" and parametr != "inventory":
                         if not message.text.isdigit():
-                            bot.send_message(message.chat.id,
-                                             "Вы ввели некорректные данные. Изменения не были внесены.")
+                            bot.send_message(message.chat.id, "Вы ввели некорректные данные. Изменения не были внесены.")
                         else:
                             res = playerMode.changeInfoAboutCharacter(message.from_user.id, characterName,
-                                                                      call.data[3:], message.text)
+                                                                      parametr, message.text)
                             bot.send_message(message.chat.id, res)
                     else:
-                        res = playerMode.changeInfoAboutCharacter(message.from_user.id, characterName, call.data[3:],
+                        res = playerMode.changeInfoAboutCharacter(message.from_user.id, characterName, parametr,
                                                                   message.text)
                         bot.send_message(message.chat.id, res)
 
                 try:
                     if call.message:
-                        msg = bot.send_message(call.message.chat.id, 'Введите новые данные')
+                        # Убираем строковые кнопки
+                        bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                                              text="↓ Введите новые данные ↓",
+                                              reply_markup=None)
                         bot.register_next_step_handler(msg, setVal)
 
                 except Exception as e:
