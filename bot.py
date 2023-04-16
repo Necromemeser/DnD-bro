@@ -108,17 +108,32 @@ def role_choice_handler(message):
                 try:
                     if call.message:
                         if call.data == 'cs.create':
-                            bot.send_message(call.message.chat.id,'Отлично! Приступим к созданию очередного героя!')
+                            # Убираем строковые кнопки
+                            bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                                                  text="Отлично! Приступим к созданию очередного героя!",
+                                                  reply_markup=None)
                             create_character(message)
 
                         elif call.data == 'cs.edit':
-                            bot.send_message(call.message.chat.id,
-                                             '')
+                            # Убираем строковые кнопки
+                            bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                                                  text="↓ Под вашим контролем следующие персонажи ↓",
+                                                  reply_markup=None)
+                            ans = bot.send_message(call.message.chat.id, playerMode.getListCharacters(message.from_user.id))
+                            if ans.text != "У вас еще нет персонажей":
+                                findCharacterForEdit(message)
+
+
 
                         elif call.data == 'cs.view':
-                            bot.send_message(call.message.chat.id, '↓ Под вашим контролем следующие персонажи ↓')
-                            bot.send_message(call.message.chat.id, playerMode.getListCharacters(message.from_user.id))
-                            findCharacter(message)
+                            # Убираем строковые кнопки
+                            bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                                                  text="↓ Под вашим контролем следующие персонажи ↓",
+                                                  reply_markup=None)
+                            #bot.send_message(call.message.chat.id, '↓ Под вашим контролем следующие персонажи ↓')
+                            ans = bot.send_message(call.message.chat.id, playerMode.getListCharacters(message.from_user.id))
+                            if ans.text != "У вас еще нет персонажей":
+                                 findCharacterForView(message)
 
                 except Exception as e:
                     print(repr(e))
@@ -145,7 +160,7 @@ def role_choice_handler(message):
 
             bot.send_message(message.chat.id, "Сколько нужно граней?", reply_markup=markup)
 
-
+        else:
             bot.send_message(message.chat.id, 'Милсдарь {0.first_name}, извольте! Ничего не понял... Скажите еще раз, по-другому!')
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith('d.'))
@@ -352,20 +367,100 @@ def create_character(message):
     msg = bot.send_message(message.chat.id, 'Как зовут персонажа?')
     bot.register_next_step_handler(msg, step1)
 
-
 @bot.message_handler(commands=['find_character'])
-def findCharacter(message):
+def findCharacterForView(message):
     """
-    Функция принимает имя персонажа для поиска в таблице
+    Функция принимает имя персонажа для поиска в таблице для вывода данных
     """
     def getName(msg):
+        """
+        Функция используется для вывода информации о персонаже
+        """
         info = playerMode.getIinfoAboutCharacter(message.from_user.id, msg.text)
         bot.send_message(message.chat.id, info.format(message.from_user, bot.get_me()), parse_mode='html')
 
     msg = bot.send_message(message.chat.id, 'Введите имя персонажа, данные о котором вам нужны')
     bot.register_next_step_handler(msg, getName)
 
+@bot.message_handler(commands=['find_character_for_edit'])
+def findCharacterForEdit(message):
+    """
+    Функция принимает имя персонажа для поиска в таблице для вывода данных
+    """
 
+    def getName(msg):
+        """
+        Функция используется для вывода информации о персонаже
+        """
+
+        characterName = msg.text
+        info = playerMode.getIinfoAboutCharacter(message.from_user.id, msg.text)
+
+        if info != "У вас нет персонажа с таким именем":
+            info = "Ваш персонаж на данный момент имеет следующие данные:\n\n" + info
+            bot.send_message(message.chat.id, info.format(message.from_user, bot.get_me()), parse_mode='html')
+
+            name = types.InlineKeyboardButton("Имя", callback_data='ce.name')
+            cl = types.InlineKeyboardButton("Класс", callback_data='ce.class')
+            lvl = types.InlineKeyboardButton("Уровень", callback_data='ce.level')
+
+            s = types.InlineKeyboardButton("СИЛ", callback_data='ce.strength')
+            dex = types.InlineKeyboardButton("ЛОВ", callback_data='ce.dexterity')
+            sta = types.InlineKeyboardButton("ВЫН", callback_data='ce.stamina')
+            intellect = types.InlineKeyboardButton("ИНТ", callback_data='ce.intellect')
+            w = types.InlineKeyboardButton("МУД", callback_data='ce.wisdom')
+            ch = types.InlineKeyboardButton("ХАР", callback_data='ce.charisma')
+
+            hp = types.InlineKeyboardButton("Максимальное ХП", callback_data='ce.hp')
+            armor = types.InlineKeyboardButton("Класс брони", callback_data='ce.armor_class')
+
+            inventory = types.InlineKeyboardButton("Инвентарь", callback_data='ce.inventory')
+
+            markup = types.InlineKeyboardMarkup([[name, cl, lvl],
+                                                 [s, dex, sta, intellect, w, ch],
+                                                 [hp, armor],
+                                                 [inventory]])
+            bot.send_message(message.chat.id, "Что хотите изменить?", reply_markup=markup)
+
+            @bot.callback_query_handler(func=lambda call: call.data.startswith('ce.'))
+            def callback_inline(call):
+                """
+                Функция отвечает на вызовы
+
+                Используется для изменения данных в листах персонажей
+                """
+
+                @bot.message_handler(commands=['set_val'])
+                def setVal(message):
+                    """
+                    Функция принимает новые данные для листа персонажа
+                    """
+                    print("В setVal: ", characterName, call.data[3:])
+                    if call.data[3:] != "name" and call.data[3:] != "class" and call.data[3:] != "inventory":
+                        if not message.text.isdigit():
+                            bot.send_message(message.chat.id,
+                                             "Вы ввели некорректные данные. Изменения не были внесены.")
+                        else:
+                            res = playerMode.changeInfoAboutCharacter(message.from_user.id, characterName,
+                                                                      call.data[3:], message.text)
+                            bot.send_message(message.chat.id, res)
+                    else:
+                        res = playerMode.changeInfoAboutCharacter(message.from_user.id, characterName, call.data[3:],
+                                                                  message.text)
+                        bot.send_message(message.chat.id, res)
+
+                try:
+                    if call.message:
+                        msg = bot.send_message(call.message.chat.id, 'Введите новые данные')
+                        bot.register_next_step_handler(msg, setVal)
+
+                except Exception as e:
+                    print(repr(e))
+        else:
+            bot.send_message(message.chat.id, info)
+
+    msg = bot.send_message(message.chat.id, 'Введите имя персонажа, данные о котором хотите изменить')
+    bot.register_next_step_handler(msg, getName)
 
 
 # Запуск!

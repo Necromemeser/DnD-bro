@@ -65,32 +65,58 @@ def getListCharacters(userID):
         select_all_rows = f"""SELECT * FROM charactersheet WHERE user_id = {userID}"""
         cursor.execute(select_all_rows)
         rows = cursor.fetchall()
-        listCharacters = "[ №: Имя - Класс ]\n"
-        i = 1
-        for row in rows:
-            listCharacters += str(i) + ": " + row[2] + " - " + row[3] + "\n"
-            i += 1
-        return listCharacters
+        if rows is not None:
+            listCharacters = "[ №: Имя - Класс ]\n"
+            i = 1
+            for row in rows:
+                listCharacters += str(i) + ": " + row[2] + " - " + row[3] + "\n"
+                i += 1
+            return listCharacters
+        else:
+            return "У вас еще нет персонажей"
+
 
 def getIinfoAboutCharacter(userID, name):
+    """
+    Функция возвращает информацию о конкретном персонаже
+    """
     with connection.cursor() as cursor:
         select_all_rows = f"""SELECT * FROM charactersheet WHERE user_id = {userID} AND name = '{name}'"""
         cursor.execute(select_all_rows)
         character = cursor.fetchone()
-        info = ""
-        info += "<b>Имя</b>: " + character[2] + "\n"
-        info += "<b>Класс</b>: " + character[3] + "\n"
-        info += "<b>Уровень</b>: " + str(character[4]) + "\n\n"
-        info += "<b><i>Сила</i></b>: " + str(character[5]) + "\n"
-        info += "<b><i>Ловкость</i></b>: " + str(character[6]) + "\n"
-        info += "<b><i>Выносливость</i></b>: " + str(character[7]) + "\n"
-        info += "<b><i>Интеллект</i></b>: " + str(character[8]) + "\n"
-        info += "<b><i>Мудрость</i></b>: " + str(character[9]) + "\n"
-        info += "<b><i>Харизма</i></b>: " + str(character[10]) + "\n\n"
-        info += "<b>Максимальное ХП</b>: " + str(character[11]) + "\n"
-        info += "<b>Класс брони</b>: " + str(character[12]) + "\n\n"
-        if character[13] is None:
-            info += "<b><i>Инвентарь</i></b>:\n[ ПУСТО ]"
+        if character is not None:
+            info = ""
+            info += "<b>Имя</b>: " + character[2] + "\n"
+            info += "<b>Класс</b>: " + character[3] + "\n"
+            info += "<b>Уровень</b>: " + str(character[4]) + "\n\n"
+            info += "<b><i>Сила</i></b>: " + str(character[5]) + "\n"
+            info += "<b><i>Ловкость</i></b>: " + str(character[6]) + "\n"
+            info += "<b><i>Выносливость</i></b>: " + str(character[7]) + "\n"
+            info += "<b><i>Интеллект</i></b>: " + str(character[8]) + "\n"
+            info += "<b><i>Мудрость</i></b>: " + str(character[9]) + "\n"
+            info += "<b><i>Харизма</i></b>: " + str(character[10]) + "\n\n"
+            info += "<b>Максимальное ХП</b>: " + str(character[11]) + "\n"
+            info += "<b>Класс брони</b>: " + str(character[12]) + "\n\n"
+            if character[13] is None:
+                info += "<b><i>Инвентарь</i></b>:\n[ ПУСТО ]"
+            else:
+                info += "<b><i>Инвентарь</i></b>:\n" + character[13]
+            return info
         else:
-            info += "<b><i>Мудрость</i></b>:\n" + character[13]
-        return info
+            return "У вас нет персонажа с таким именем"
+
+
+def changeInfoAboutCharacter(userID, characterName, parameter, val):
+    """
+    Функция меняет данные в листе персонажа
+    """
+    print("Внутри changeInfoAboutCharacter", characterName)
+    with connection.cursor() as cursor:
+        if parameter != "name" and parameter != "class" and parameter != "inventory":
+            cursor.execute(
+                f"""UPDATE charactersheet SET {parameter} = {val} WHERE user_id = {userID} AND name = '{characterName}'""")
+            return "Данные успешно обновлены!"
+        else:
+            cursor.execute(
+                f"""UPDATE charactersheet SET {parameter} = '{val}' WHERE user_id = {userID} AND name = '{characterName}'""")
+            return "Данные успешно обновлены!"
