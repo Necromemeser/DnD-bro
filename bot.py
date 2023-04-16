@@ -132,7 +132,6 @@ def role_choice_handler(message):
                             bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                                   text="↓ Под вашим контролем следующие персонажи ↓",
                                                   reply_markup=None)
-                            #bot.send_message(call.message.chat.id, '↓ Под вашим контролем следующие персонажи ↓')
                             ans = bot.send_message(call.message.chat.id, playerMode.getListCharacters(message.from_user.id))
                             if ans.text != "У вас еще нет персонажей":
                                  findCharacterForView(message)
