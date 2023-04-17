@@ -3,12 +3,15 @@ import re
 import telebot
 import random
 import playerMode
-from telebot import types
+
 import config
 
 from threading import Thread
 import schedule
 from time import sleep
+
+from markups import types
+import markups
 
 bot = telebot.TeleBot(config.TOKEN)
 chat_id = 0
@@ -21,6 +24,9 @@ def welcome(message):
 
     Отправляет приветственные сообщения
     И создает клавиатуру
+
+    Так же запускает поток, чтобы каждую среду отправлять
+    культурно значимое изображение
     """
 
     global chat_id
@@ -28,11 +34,7 @@ def welcome(message):
 
     bot.send_video(message.chat.id, 'https://tenor.com/ru/view/pepe-pepe-the-frog-wizard-gif-7939266', None, '')
     # Создание клавиатуры
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    item1 = types.KeyboardButton("♂ Dungeon Master ♂")
-    item2 = types.KeyboardButton("⚔ Игрок ⚔")
-
-    markup.add(item1, item2)
+    markup = markups.mainMarkup()
 
     bot.send_message(message.chat.id,
                      "Будь как дома, {0.first_name}!\nЯ ни в чем не откажу...\n\n"
@@ -41,6 +43,7 @@ def welcome(message):
                      "🎲 <b>Роллить дайсы</b> (единственные слова на эльфийском, что я знаю);\n\n"
                      "📝 <b>Ввести учет своих других, более интересных жизней</b>;\n\n"
                      "🧑 <b>Спихнуть ответственность за названия людей и имена городов на бездушный инструмент</b> (эт я, да :3);\n\n"
+                     "🐗 <b>Находить гадов всех цветов и расцветок по щелчку пальца</b> (признаю, пальцев нет, но всех грязных тварей найду!);\n\n"
                      "👉👈 <b>Получить дозу хорошего настроения между партиями</b>;\n\n"
                      "И многое другое! - сказал бы я, было бы что-то еще...\n"
                      "В общем, помогу, чем смогу.\n\n"
@@ -58,7 +61,6 @@ def welcome(message):
         return bot.send_photo(message.chat.id, "https://i.redd.it/qa90feu2yoh21.png")
 
     schedule.every().wednesday.at("09:00").do(itsWednesdayMyDudes)
-    print("sup")
     Thread(target=schedule_checker).start()
 
 
@@ -79,32 +81,16 @@ def role_choice_handler(message):
     """
     if message.chat.type == 'private':
         if message.text == '♂ Dungeon Master ♂':  # Переход в режим ДМ-а
-            markup = types.ReplyKeyboardRemove(selective=False)
-            bot.send_message(message.chat.id, "Сразу видно - человек серьезный.", reply_markup=markup)
-            markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-            item1 = types.KeyboardButton("Дайсы кинь!")
-            item2 = types.KeyboardButton("Случайное Имя")
-            item3 = types.KeyboardButton("Случайный Город")
-            item4 = types.KeyboardButton("Доза")
-            item5 = types.KeyboardButton("Сменить роль")
-            markup.add(item1, item2, item3, item4, item5)
-
-            bot.send_message(message.chat.id, "Чего желаете?", reply_markup=markup)
+            markup = markups.DMMarkup()
+            bot.send_message(message.chat.id, "Хорошей Игры!\nЧего желаете?", reply_markup=markup)
 
         elif message.text == '⚔ Игрок ⚔':  # Переход в режим игрока
-            markup = types.ReplyKeyboardRemove(selective=False)
-            bot.send_message(message.chat.id, "Хорошей игры!", reply_markup=markup)
-            markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-            item1 = types.KeyboardButton("Дайсы кинь!")
-            item2 = types.KeyboardButton("Листы персонажей")
-            item3 = types.KeyboardButton("Доза")
-            item4 = types.KeyboardButton("Сменить роль")
-            markup.add(item1, item2, item3, item4)
-
-            bot.send_message(message.chat.id, "Чего желаете?", reply_markup=markup)
+            markup = markups.PlayerMarkup()
+            bot.send_message(message.chat.id, "Хорошей Игры!\nЧего желаете?", reply_markup=markup)
 
         elif message.text == 'Сменить роль':  # Замена роли на противоположную (Недоделано)
-            bot.send_message(message.chat.id, "Прости, эта часть еще недоделана(")
+            markup = markups.mainMarkup()
+            bot.send_message(message.chat.id, "Неужели, понадобились мои мемы?", reply_markup=markup)
 
         elif message.text == 'Листы персонажей':
             markup = types.InlineKeyboardMarkup(row_width=2)
@@ -153,7 +139,7 @@ def role_choice_handler(message):
                 except Exception as e:
                     print(repr(e))
 
-        elif message.text == 'Доза':  # Вывод тематического мема (Недоделано)
+        elif message.text == 'Я здесь за мемами!':  # Вывод тематического мема (Недоделано)
             bot.send_message(message.chat.id, "Прости, эта часть еще недоделана(")
 
         elif message.text == 'Случайное Имя':  # Вывод случайного имени для НПС (Недоделано)
@@ -176,7 +162,9 @@ def role_choice_handler(message):
             bot.send_message(message.chat.id, "Сколько нужно граней?", reply_markup=markup)
 
         else:
-            bot.send_message(message.chat.id, 'Милсдарь {0.first_name}, извольте! Ничего не понял... Скажите еще раз, по-другому!')
+            bot.send_message(message.chat.id,
+                             'Милсдарь {0.first_name}, извольте! Ничего не понял... Скажите еще раз, по-другому!'.format(
+                                 message.from_user, bot.get_me()))
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith('d.'))
 def callback_inline(call):
