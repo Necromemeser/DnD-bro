@@ -3,16 +3,15 @@ import re
 import telebot
 import random
 import playerMode
-
 from telebot import types
-from dotenv import load_dotenv
-
 import config
 
-path = "F:/DnD-bro-token/token.env"
-load_dotenv(dotenv_path=path)
+from threading import Thread
+import schedule
+from time import sleep
 
 bot = telebot.TeleBot(config.TOKEN)
+chat_id = 0
 
 
 @bot.message_handler(commands=['start'])
@@ -23,6 +22,9 @@ def welcome(message):
     Отправляет приветственные сообщения
     И создает клавиатуру
     """
+
+    global chat_id
+    chat_id = message.chat.id
 
     bot.send_video(message.chat.id, 'https://tenor.com/ru/view/pepe-pepe-the-frog-wizard-gif-7939266', None, '')
     # Создание клавиатуры
@@ -46,6 +48,18 @@ def welcome(message):
                      "ты ♂ Dungeon Master ♂ или ⚔ Игрок ⚔?</b>".format(
                          message.from_user, bot.get_me()),
                      parse_mode='html', reply_markup=markup)
+
+    def schedule_checker():
+        while True:
+            schedule.run_pending()
+            sleep(30)
+
+    def itsWednesdayMyDudes():
+        return bot.send_photo(message.chat.id, "https://i.redd.it/qa90feu2yoh21.png")
+
+    schedule.every().wednesday.at("09:00").do(itsWednesdayMyDudes)
+    print("sup")
+    Thread(target=schedule_checker).start()
 
 
 @bot.message_handler(content_types=['text'])
