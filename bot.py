@@ -1,15 +1,11 @@
 import re
-
 import telebot
 import random
 import playerMode
-
 import config
-
 from threading import Thread
 import schedule
 from time import sleep
-
 from markups import types
 import markups
 
@@ -78,6 +74,7 @@ def role_choice_handler(message):
     'Доза': выводит тематический мем
     'Случайное Имя': выводит случайное имя для НПС (Режим ДМ-а)
     'Случайный Город': выводит случайное название для города (Режим ДМ-а)
+    'Найти бестию': возвращает информацию о существе, название которого вводится пользователем
     """
     if message.chat.type == 'private':
         if message.text == '♂ Dungeon Master ♂':  # Переход в режим ДМ-а
@@ -149,17 +146,12 @@ def role_choice_handler(message):
             bot.send_message(message.chat.id, "Прости, эта часть еще недоделана(")
 
         elif message.text == 'Дайсы кинь!':  # Бросок дайса
-            markup = types.InlineKeyboardMarkup(row_width=3)
-            d4 = types.InlineKeyboardButton("4", callback_data='d.4')
-            d6 = types.InlineKeyboardButton("6", callback_data='d.6')
-            d8 = types.InlineKeyboardButton("8", callback_data='d.8')
-            d10 = types.InlineKeyboardButton("10", callback_data='d.10')
-            d12 = types.InlineKeyboardButton("12", callback_data='d.12')
-            d20 = types.InlineKeyboardButton("20", callback_data='d.20')
-
-            markup.add(d4, d6, d8, d10, d12, d20)
+            markup = markups.diceMarkup()
 
             bot.send_message(message.chat.id, "Сколько нужно граней?", reply_markup=markup)
+
+        elif message.text == 'Найти бестию':
+            bot.send_message(message.chat.id, "Прости, эта часть еще недоделана(")
 
         else:
             bot.send_message(message.chat.id,

@@ -14,27 +14,27 @@ setuptools.setup(
      
     # Website for your Project or Github repo
     url="https://github.com/myGitHubRepo",
- 
+
     # Name of the Creator
     author='Author Name',
- 
+
     # Creator's mail address
     author_email='authorname@gmail.com',
-     
+
     # Projects you want to include in your Package
-    packages=setuptools.find_packages (),
-    
+    packages=setuptools.find_packages(),
+
     # Dependencies/Other modules required for your package to work
-    install_requires=['telebot', 'python-dotenv','setuptools',],
- 
+    install_requires=['telebot', 'python-dotenv', 'setuptools', 'schedule'],
+
     # Detailed description of your package
-    #long_description='This module provides one function that determines whether the provided number is either odd, even, or neither (in the cases of 0)',
- 
+    # long_description='This module provides one function that determines whether the provided number is either odd, even, or neither (in the cases of 0)',
+
     # Format of your Detailed Description
-    #long_description_content_type="text/markdown",
-      
+    # long_description_content_type="text/markdown",
+
     # Classifiers allow your Package to be categorized based on functionality
-    #classifiers = [
+    # classifiers = [
     #    "Programming Language :: Python :: 3",
     #     "Operating System :: OS Independent",
     #],
