@@ -25,7 +25,9 @@ setuptools.setup(
     packages=setuptools.find_packages(),
 
     # Dependencies/Other modules required for your package to work
-    install_requires=['telebot', 'python-dotenv', 'setuptools', 'schedule'],
+
+    install_requires=['telebot', 'python-dotenv', 'setuptools', 'schedule', 'psycopg2'],
+
 
     # Detailed description of your package
     # long_description='This module provides one function that determines whether the provided number is either odd, even, or neither (in the cases of 0)',

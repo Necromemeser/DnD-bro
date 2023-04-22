@@ -9,11 +9,22 @@ import schedule
 from time import sleep
 from markups import types
 import markups
+import telebot
+import random
+import playerMode
+import config
+from telebot import types
+from dotenv import load_dotenv
+
+URL = 'https://ttg.club/bestiary/'
+
 
 bot = telebot.TeleBot(config.TOKEN)
 chat_id = 0
 
 
+
+        
 @bot.message_handler(commands=['start'])
 def welcome(message):
     """
@@ -82,6 +93,7 @@ def role_choice_handler(message):
             markup = markups.DMMarkup()
             bot.send_message(message.chat.id, "Хорошей Игры!\nЧего желаете?", reply_markup=markup)
 
+
         elif message.text == '⚔ Игрок ⚔':  # Переход в режим игрока
             markup = markups.PlayerMarkup()
             bot.send_message(message.chat.id, "Хорошей Игры!\nЧего желаете?", reply_markup=markup)
@@ -146,6 +158,38 @@ def role_choice_handler(message):
         elif message.text == 'Случайный Город':  # Вывод случайного названия города (Недоделано)
             bot.send_message(message.chat.id, "Прости, эта часть еще недоделана(")
 
+        elif message.text == 'Найти бестию': # Получение ссылки на бестию (Недоделано)
+            markup = types.InlineKeyboardMarkup(row_width=1)
+            take1 = types.InlineKeyboardButton("Найти бестию по имени", callback_data='take1')
+            take2 = types.InlineKeyboardButton("FAQ", callback_data='take2')
+            markup.add(take1, take2)
+            bot.send_message(message.chat.id, "Нажми кнопку и получишь то, что ты хочешь", reply_markup=markup)
+            @bot.callback_query_handler(func=lambda call: call.data.startswith('take'))
+            def callback_inline(call):
+                """
+                Функция отвечает на вызовы при выборе инструмента "Найти бестию"
+
+                Используется для взаимодействия с меню
+                """
+                try:
+                    if call.message:
+                        if call.data == 'take1':
+                            # Убираем строковые кнопки
+                            bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                                                  text="Отлично! Приступим к получению информации о бестии!",
+                                                  reply_markup=None)
+                            take_bestia(message)
+                        elif call.data == 'take2':
+                            # Убираем строковые кнопки
+                            bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                                                  text="Милсдари и милсдарни часто задают вопросы по этой моей функции.\n"
+                                                       "Так вот, уважаемые, чтобы найти в чертогах моего сознания нужную тварь -\n"
+                                                       "мне нужно ее эльфийское имя (например, hare или bandit), тогда все будет хорошо. Обещаю.",
+                                                  reply_markup=markup)
+                except Exception as e:
+                    print(repr(e))
+
+        
         elif message.text == 'Дайсы кинь!':  # Бросок дайса
             markup = markups.diceMarkup()
 
@@ -191,6 +235,7 @@ def callback_inline(call):
         print(repr(e))
 
 
+
 @bot.message_handler(commands=['create_character'])
 def create_character(message):
     """
@@ -200,6 +245,7 @@ def create_character(message):
     """
     character = []
     character.append(str(message.from_user.id))
+    
 
     def step1(msg):
         """
@@ -208,6 +254,8 @@ def create_character(message):
         character.append(msg.text)
         msg = bot.send_message(message.chat.id, 'Какой у него класс?')
         bot.register_next_step_handler(msg, step2)
+
+
 
     def step2(msg):
         """
@@ -467,6 +515,24 @@ def findCharacterForEdit(message):
     msg = bot.send_message(message.chat.id, 'Введите имя персонажа, данные о котором хотите изменить')
     bot.register_next_step_handler(msg, getName)
 
+def form_url(message):
+        """
+        Получение ссылки
+        """
+        name = message.text
+        url= URL + name
+        message = bot.send_message(message.chat.id, f'Лови описание хомячок: {url}')
+
+@bot.message_handler(commands=['Найти бестию'])
+def take_bestia(message):
+    """
+    Функция для получения бестии
+    """
+
+    msg = bot.send_message(message.chat.id, 'Какую бестию вы хотите получить?')
+    bot.register_next_step_handler(msg, form_url())
 
 # Запуск!
 bot.polling(none_stop=True)
+
+
