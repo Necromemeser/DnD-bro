@@ -2,6 +2,7 @@ import re
 import telebot
 import random
 import playerMode
+import memes
 import config
 from threading import Thread
 import schedule
@@ -54,7 +55,7 @@ def welcome(message):
             sleep(30)
 
     def itsWednesdayMyDudes():
-        return bot.send_photo(message.chat.id, "https://i.redd.it/qa90feu2yoh21.png")
+        return bot.send_photo(message.chat.id, "https://i.redd.it/qa90feu2yoh21.png", caption="Хорошей среды, мои чуваки!")
 
     schedule.every().wednesday.at("09:00").do(itsWednesdayMyDudes)
     Thread(target=schedule_checker).start()
@@ -137,7 +138,7 @@ def role_choice_handler(message):
                     print(repr(e))
 
         elif message.text == 'Я здесь за мемами!':  # Вывод тематического мема (Недоделано)
-            bot.send_message(message.chat.id, "Прости, эта часть еще недоделана(")
+            bot.send_photo(message.chat.id, memes.getMeme(), caption="Мемы? Их есть у меня!")
 
         elif message.text == 'Случайное Имя':  # Вывод случайного имени для НПС (Недоделано)
             bot.send_message(message.chat.id, "Прости, эта часть еще недоделана(")
