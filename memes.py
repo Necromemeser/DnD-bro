@@ -34,7 +34,7 @@ try:
     #     cursor.execute(
     #         """INSERT INTO memes (id, link) VALUES
     #         (0, 'https://i.redd.it/gmy77cewadva1.jpg'),
-    #         (1, 'https://i.redd.it/gmy77cewadva1.jpg''),
+    #         (1, 'https://i.redd.it/gmy77cewadva1.jpg'),
     #         (2, 'https://i.redd.it/rzje90afedva1.png'),
     #         (3, 'https://i.redd.it/azfniau2pcva1.jpg'),
     #         (4, 'https://i.redd.it/p2rd0rp0icva1.png'),

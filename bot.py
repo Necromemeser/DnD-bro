@@ -185,18 +185,18 @@ def role_choice_handler(message):
                                                   text="Милсдари и милсдарни часто задают вопросы по этой моей функции.\n"
                                                        "Так вот, уважаемые, чтобы найти в чертогах моего сознания нужную тварь -\n"
                                                        "мне нужно ее эльфийское имя (например, hare или bandit), тогда все будет хорошо. Обещаю.",
-                                                  reply_markup=markup)
+                                                  parse_mode='html', reply_markup=markup)
                 except Exception as e:
                     print(repr(e))
 
-        
+
         elif message.text == 'Дайсы кинь!':  # Бросок дайса
             markup = markups.diceMarkup()
 
             bot.send_message(message.chat.id, "Сколько нужно граней?", reply_markup=markup)
 
-        elif message.text == 'Найти бестию':
-            bot.send_message(message.chat.id, "Прости, эта часть еще недоделана(")
+        # elif message.text == 'Найти бестию':
+        #     bot.send_message(message.chat.id, "Прости, эта часть еще недоделана(")
 
         else:
             bot.send_message(message.chat.id,
@@ -515,6 +515,7 @@ def findCharacterForEdit(message):
     msg = bot.send_message(message.chat.id, 'Введите имя персонажа, данные о котором хотите изменить')
     bot.register_next_step_handler(msg, getName)
 
+
 def form_url(message):
         """
         Получение ссылки
@@ -530,7 +531,7 @@ def take_bestia(message):
     """
 
     msg = bot.send_message(message.chat.id, 'Какую бестию вы хотите получить?')
-    bot.register_next_step_handler(msg, form_url())
+    bot.register_next_step_handler(msg, form_url)
 
 # Запуск!
 bot.polling(none_stop=True)
