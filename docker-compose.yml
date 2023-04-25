@@ -1,0 +1,31 @@
+version: "3"
+
+services:
+  bot:
+    build: .
+    container_name: DnD-bro-bot
+    command: python bot.py
+    ports:
+      - 80:80
+    volumes:
+      - ./:/app
+    depends_on:
+      - postgres_db
+    networks:
+      - app-network
+  postgres_db:
+    restart: always
+    image: postgres
+    container_name: postgres
+    environment:
+      POSTGRES_PASSWORD: "z26200307eD1"
+      POSTGRES_USER: "postgres"
+      POSTGRES_DB: "DnDBot"
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    networks:
+      - app-network
+volumes:
+  postgres:
+networks:
+  app-network:
