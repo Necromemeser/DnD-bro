@@ -7,6 +7,7 @@ import config
 from threading import Thread
 import schedule
 from time import sleep
+import randname
 from markups import types
 import markups
 import telebot
@@ -142,28 +143,30 @@ def role_choice_handler(message):
                             bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                                   text="↓ Под вашим контролем следующие персонажи ↓",
                                                   reply_markup=None)
-                            ans = bot.send_message(call.message.chat.id, playerMode.getListCharacters(str(message.from_user.id)))
+                            ans = bot.send_message(call.message.chat.id,
+                                                   playerMode.getListCharacters(str(message.from_user.id)))
                             if ans.text != "У вас еще нет персонажей":
-                                 findCharacterForView(message)
+                                findCharacterForView(message)
 
                 except Exception as e:
                     print(repr(e))
 
-        elif message.text == 'Я здесь за мемами!':  # Вывод тематического мема (Недоделано)
+        elif message.text == 'Я здесь за мемами!':  # Вывод тематического мема
             bot.send_photo(message.chat.id, memes.getMeme(), caption="Мемы? Их есть у меня!")
 
-        elif message.text == 'Случайное Имя':  # Вывод случайного имени для НПС (Недоделано)
-            bot.send_message(message.chat.id, "Прости, эта часть еще недоделана(")
+        elif message.text == 'Случайное Имя':  # Вывод случайного имени для НПС
+            bot.send_message(message.chat.id, randname.getName())
 
-        elif message.text == 'Случайный Город':  # Вывод случайного названия города (Недоделано)
-            bot.send_message(message.chat.id, "Прости, эта часть еще недоделана(")
+        elif message.text == 'Случайный Город':  # Вывод случайного названия города
+            bot.send_message(message.chat.id, randname.getCity())
 
-        elif message.text == 'Найти бестию': # Получение ссылки на бестию (Недоделано)
+        elif message.text == 'Найти бестию':  # Получение ссылки на бестию
             markup = types.InlineKeyboardMarkup(row_width=1)
             take1 = types.InlineKeyboardButton("Найти бестию по имени", callback_data='take1')
             take2 = types.InlineKeyboardButton("FAQ", callback_data='take2')
             markup.add(take1, take2)
             bot.send_message(message.chat.id, "Нажми кнопку и получишь то, что ты хочешь", reply_markup=markup)
+
             @bot.callback_query_handler(func=lambda call: call.data.startswith('take'))
             def callback_inline(call):
                 """
@@ -194,9 +197,6 @@ def role_choice_handler(message):
             markup = markups.diceMarkup()
 
             bot.send_message(message.chat.id, "Сколько нужно граней?", reply_markup=markup)
-
-        # elif message.text == 'Найти бестию':
-        #     bot.send_message(message.chat.id, "Прости, эта часть еще недоделана(")
 
         else:
             bot.send_message(message.chat.id,
